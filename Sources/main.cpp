@@ -16,6 +16,8 @@
 #include"texture.h"
 #include"vertex.h"
 
+void evalVecField(Vertex& vertex);
+
 int main()
 {
     Display display(800,600,"Hello World");
@@ -47,9 +49,13 @@ int main()
     // Vertices
     int numVertex = 3;
     Vertex vertexArr[] = {
-        Vertex(-0.5f, -0.5f*float(sqrt(3))/3),
-        Vertex(0.5f, -0.5f*float(sqrt(3))/3),
-        Vertex(0.0f, 0.5f*float(sqrt(3))*2/3),
+        //Vertex(-0.5f, -0.5f*float(sqrt(3))/3),
+        //Vertex(0.5f, -0.5f*float(sqrt(3))/3),
+        //Vertex(0.0f, 0.5f*float(sqrt(3))*2/3),
+        Vertex(0.1f, 0.1f),
+        Vertex(0.1f, 0.2f),
+        Vertex(0.2f, 0.1f),
+
     };
     GLfloat vertices[numVertex*3];
     verticesToArr(vertexArr, numVertex, vertices);
@@ -115,6 +121,8 @@ int main()
     // Swap the back buffer with the front buffer
     glfwSwapBuffers(window);
 
+    double prevTime = glfwGetTime();
+
     // Render loop
     while(!glfwWindowShouldClose(window))
     {
@@ -123,15 +131,35 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         // Tell OpenGL which Shader Program we want to use
         shaderProgram.Activate();
+
+        // Simple timer
+        double crntTime = glfwGetTime();
+        if (crntTime - prevTime >= 1/60)
+        {
+            // Advect each vertex according to the evalVecField vector field...
+            for(int i=0; i<=numVertex; i++){
+                evalVecField(vertexArr[i]);
+                vertexArr[i].advect(crntTime - prevTime);
+            }
+            prevTime = crntTime;
+        }
+        // Put vertex coordinate data into vertices
+        verticesToArr(vertexArr, numVertex, vertices);
+
         // Can only call this after Activating Shader Program. Assigns value to uniform
         glUniform1f(uniID,0.5f);
         //popCat.Bind();
         // Bind the VAO so OpenGL knows to use it
         VAO1.Bind();
+
+        // A REALLY CLUNKY way to set up all the vertices again and make them be used to draw...
+        VBO1.LoadBufferData(vertices, sizeof(vertices)); // Clunky...
+        VAO1.LinkAttrib(VBO1,0,3, GL_FLOAT,3*sizeof(float),(void*)0); // Link attributes for position
+
         // Draw the triangle using GL_TRIANGLES primitive
         glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
-        glfwSwapBuffers(window);
 
+        glfwSwapBuffers(window);
         // Take care of all GLFW events
         glfwPollEvents();
     }
@@ -148,3 +176,11 @@ int main()
     return 0;
 }
 
+void evalVecField(Vertex& vertex){
+    // Simple solenoidal (i.e. div free) field
+    vertex.xVel = -1*vertex.yPos;
+    vertex.yVel = vertex.xPos;
+
+    //vertex.xVel = -1*vertex.yPos;
+    //vertex.yVel = 2*vertex.xPos*vertex.yPos;
+}

@@ -12,6 +12,9 @@ class VBO
         void Bind();
         void Unbind();
         void Delete();
+
+        void LoadBufferData(GLfloat* vertices, GLsizeiptr size);
+
 };
 
 #endif

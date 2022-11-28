@@ -10,7 +10,12 @@ class Vertex
         GLfloat yPos;
         GLfloat zPos;
 
+        float xVel;
+        float yVel;
+        float zVel;
+
         Vertex(GLfloat x, GLfloat y);
+        void advect(float timestep);
 };
 
 void verticesToArr(Vertex* vertices, int n, GLfloat* verts);
