@@ -8,8 +8,11 @@ class Vertex
     public:
         GLfloat xPos;
         GLfloat yPos;
+        GLfloat zPos;
 
         Vertex(GLfloat x, GLfloat y);
 };
+
+void verticesToArr(Vertex* vertices, int n, GLfloat* verts);
 
 #endif
