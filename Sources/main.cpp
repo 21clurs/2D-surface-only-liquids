@@ -6,6 +6,7 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
 #include<tuple>
+#include<vector>
 
 #include"math.h"
 
@@ -52,14 +53,38 @@ int main()
     // Vertices
     int numVertex = 3;
     Vertex vertexArr[] = {
-        //Vertex(-0.5f, -0.5f*float(sqrt(3))/3),
-        //Vertex(0.5f, -0.5f*float(sqrt(3))/3),
-        //Vertex(0.0f, 0.5f*float(sqrt(3))*2/3),
-        Vertex(0.1f, 0.1f),
-        Vertex(0.1f, 0.2f),
-        Vertex(0.2f, 0.1f),
-
+        Vertex(0.1f, 0.1f), //Vertex(-0.5f, -0.5f*float(sqrt(3))/3),
+        Vertex(0.1f, 0.2f), //Vertex(0.5f, -0.5f*float(sqrt(3))/3),
+        Vertex(0.2f, 0.1f), //Vertex(0.0f, 0.5f*float(sqrt(3))*2/3),
     };
+    // Velocities
+    // Just initializing all velocities to 0
+    std::vector<std::tuple<float,float>> velocities(numVertex, std::make_tuple(0,0));
+    // Constructing 'edges' vector
+    // Contains tuples (i,j) where there exists an edge between vertexArr[i] and vertexArr[j] 
+    int numEdges = numVertex;
+    std::vector<std::tuple<int,int>> edges;
+    for(int i=0; i<numEdges; i++){
+        edges.push_back(std::make_tuple(i,(i+1)%numVertex)); // Super simple for this case
+    }
+    // Constructing 'vertToEdges' vector
+    // vertToEdges[i] is a tuple (j,k) where vertexArr[i] is connected to edges[i] and edges[j] 
+    std::vector<std::tuple<int, int>> vertToEdges(numVertex, std::make_tuple(0,0));
+    for(int i=0; i<numEdges; i++){ // Go through edges array to construct --> THIS IS PRETTY SENSITIVE RIGHT NOW :') 
+        std::get<0>(vertToEdges[std::get<0>(edges[i])]) = i;
+        std::get<1>(vertToEdges[std::get<1>(edges[i])]) = i;
+    }
+
+    // Just printing to check on things properly setup
+    /*for(int i=0; i<numEdges; i++){
+        std::cout<<"("<<std::get<0>(edges[i])<<","<<std::get<1>(edges[i])<<")";
+    }
+    std::cout<<std::endl;
+    for(int i=0; i<numVertex; i++){
+        std::cout<<"("<<std::get<0>(vertToEdges[i])<<","<<std::get<1>(vertToEdges[i])<<")";
+    }
+    std::cout<<std::endl;*/
+
     GLfloat vertices[numVertex*3];
     verticesToArr(vertexArr, numVertex, vertices);
 

@@ -1,6 +1,6 @@
 #include"vertex.h"
 
-Vertex::Vertex(GLfloat x, GLfloat y): xPos(x), yPos(y), zPos(0.0f), xVel(0.0f), yVel(0.0f), zVel(0.0f){}
+Vertex::Vertex(GLfloat x, GLfloat y): xPos(x), yPos(y), zPos(0.0f){}
 
 void verticesToArr(Vertex* vertexArr, int n, GLfloat* vertices)
 {

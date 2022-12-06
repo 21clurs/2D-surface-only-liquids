@@ -10,10 +10,6 @@ class Vertex
         GLfloat yPos;
         GLfloat zPos;
 
-        float xVel;
-        float yVel;
-        float zVel;
-
         Vertex(GLfloat x, GLfloat y);
 };
 
