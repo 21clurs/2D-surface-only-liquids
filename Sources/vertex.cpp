@@ -10,9 +10,3 @@ void verticesToArr(Vertex* vertexArr, int n, GLfloat* vertices)
         vertices[i*3+2] = vertexArr[i].zPos;
     }
 }
-
-void Vertex::advect(float timestep){
-    xPos += xVel*timestep;
-    yPos += yVel*timestep;
-    zPos += zVel*timestep;
-}

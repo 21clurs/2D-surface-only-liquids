@@ -5,6 +5,7 @@
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
+#include<tuple>
 
 #include"math.h"
 
@@ -16,7 +17,9 @@
 #include"texture.h"
 #include"vertex.h"
 
-void evalVecField(Vertex& vertex);
+void advectFE(float timestep, Vertex* vertices, int nVertices);
+void advectRK2(float timestep, Vertex* vertices, int nVertices);
+std::tuple<float, float> evalVecField(float xPos, float yPos);
 
 int main()
 {
@@ -136,11 +139,7 @@ int main()
         double crntTime = glfwGetTime();
         if (crntTime - prevTime >= 1/60)
         {
-            // Advect each vertex according to the evalVecField vector field...
-            for(int i=0; i<=numVertex; i++){
-                evalVecField(vertexArr[i]);
-                vertexArr[i].advect(crntTime - prevTime);
-            }
+            advectRK2(crntTime - prevTime, vertexArr, numVertex);
             prevTime = crntTime;
         }
         // Put vertex coordinate data into vertices
@@ -176,11 +175,34 @@ int main()
     return 0;
 }
 
-void evalVecField(Vertex& vertex){
-    // Simple solenoidal (i.e. div free) field
-    vertex.xVel = -1*vertex.yPos;
-    vertex.yVel = vertex.xPos;
 
-    //vertex.xVel = -1*vertex.yPos;
-    //vertex.yVel = 2*vertex.xPos*vertex.yPos;
+void advectFE(float timestep, Vertex* vertices, int nVertices){
+    for(int i=0; i<=nVertices; i++){
+        auto [f_x, f_y] = evalVecField(vertices[i].xPos, vertices[i].yPos); // updates velocities on each vertex
+        vertices[i].xPos += f_x*timestep;
+        vertices[i].yPos += f_y*timestep;
+    }
+}
+
+// RK2 explicit midpoint method
+void advectRK2(float timestep, Vertex* vertices, int nVertices){
+    for(int i=0; i<=nVertices; i++){
+        auto [k1_x, k1_y] = evalVecField(vertices[i].xPos, vertices[i].yPos);
+        k1_x*=timestep;
+        k1_y*=timestep;
+
+        auto [k2_x, k2_y] = evalVecField(vertices[i].xPos + k1_x/2, vertices[i].yPos + k1_x/2);
+        k2_x*=timestep;
+        k2_y*=timestep;
+
+        vertices[i].xPos += k2_x;
+        vertices[i].yPos += k2_y;
+    }
+}
+
+// evaluate vector field -- 'velocities' -- at a given position
+std::tuple<float, float> evalVecField(float xPos, float yPos){
+    float xVel = -1*yPos;
+    float yVel = xPos;
+    return  std::make_tuple(xVel, yVel);
 }

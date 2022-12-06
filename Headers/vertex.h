@@ -15,7 +15,6 @@ class Vertex
         float zVel;
 
         Vertex(GLfloat x, GLfloat y);
-        void advect(float timestep);
 };
 
 void verticesToArr(Vertex* vertices, int n, GLfloat* verts);
